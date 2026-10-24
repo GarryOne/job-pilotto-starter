@@ -1,7 +1,7 @@
 # Job Pilotto — your scheduled job search, in YOUR private repo (the Desktop App puts it there).
-# It runs the public engine (GarryOne/job-pilotto) with this repo's secrets and variables, so your
+# It runs the public engine (GarryOne/jobadabra) with this repo's secrets and variables, so your
 # logs, job database and results stay private. Schedules are in UTC.
-name: Daily job discovery
+name: Job Pilotto
 run-name: ${{ inputs.mode || 'scheduled' }}${{ inputs.job && format(' {0}', inputs.job) || '' }}
 
 on:
@@ -12,7 +12,7 @@ on:
       mode:
         description: 'scheduled, run, today, apply, more, prepare, insight, weekly, interview or add'
         type: choice
-        options: [scheduled, run, today, apply, more, prepare, insight, weekly, interview, add]
+        options: [scheduled, run, today, apply, more, prepare, insight, weekly, interview, add, kits]
         default: scheduled
       job: {description: 'job code (apply, prepare) or job URL (add)', required: false}
       action: {description: 'apply mode: applied, saved or dismissed', required: false, default: applied}
@@ -20,14 +20,15 @@ on:
       seed: {description: 'ranking seed (more mode)', required: false}
       file: {description: 'interview mode: Telegram file id of the transcript', required: false}
       note: {description: 'interview caption or notes; add mode: application date', required: false}
+      interview: {description: 'interview mode: the 🎤 Interviews row to review (from the app)', required: false}
 
 permissions:
   contents: read
   actions: write   # an applied job starts the mail check 5 minutes later
 
 jobs:
-  daily:
-    uses: GarryOne/job-pilotto/.github/workflows/daily.yml@main
+  engine:
+    uses: GarryOne/jobadabra/.github/workflows/daily.yml@main
     with:
       mode: ${{ inputs.mode || 'scheduled' }}
       job: ${{ inputs.job }}
@@ -36,5 +37,7 @@ jobs:
       seed: ${{ inputs.seed }}
       file: ${{ inputs.file }}
       note: ${{ inputs.note }}
-      code_repository: GarryOne/job-pilotto
+      interview: ${{ inputs.interview }}
+      code_repository: GarryOne/jobadabra
+      code_ref: main   # the Job Pilotto app writes its own release here, so this repo runs the code of the installed app
     secrets: inherit
